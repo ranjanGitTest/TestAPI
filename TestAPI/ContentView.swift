@@ -8,14 +8,23 @@
 import SwiftUI
 
 struct ContentView: View {
+    
+  @ObservedObject var viewModel = UserViewModel(apiService: UserAPIservice())
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        NavigationView {
+            List(viewModel.users) { user in
+                NavigationLink(destination: DetailsContentView(name: user.name)) {
+                    Text(user.name)
+
+                }
+            }
+            .navigationTitle("User List")
+            .onAppear {
+                viewModel.loadData()
+            }
         }
-        .padding()
+
     }
 }
 

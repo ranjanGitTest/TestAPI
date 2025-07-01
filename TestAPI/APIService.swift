@@ -8,29 +8,17 @@
 import Foundation
 import Combine
 
-protocol APIService {
-    associatedtype T
-    func fetchData() -> AnyPublisher<[T], Error>
+protocol APIService: AnyObject {
+    func fetchData() -> AnyPublisher<[User], Error>
 }
 
 final class UserAPIservice: APIService {
-    typealias user = User
-    func fetchData() -> AnyPublisher<[user], Error> {
-        var urlComponent = URLComponents()
-        urlComponent.scheme = "https://"
-        urlComponent.host = "jsonplaceholder.typicode.com"
-        urlComponent.path = "/users"
-    
-         let url = urlComponent.url
-            var request = URLRequest(url: url!)
-            request.httpMethod = "GET"
-            
-            // Optional: add headers
-            request.setValue("application/json", forHTTPHeaderField: "Accept")
-
-        return URLSession.shared.dataTaskPublisher(for: request.url!)
+    func fetchData() -> AnyPublisher<[User], any Error> {
+        let url = URL(string: "https://jsonplaceholder.typicode.com/users")!
+        
+        return URLSession.shared.dataTaskPublisher(for: url)
             .map(\.data)
-            .decode(type: [user].self, decoder: JSONDecoder())
+            .decode(type: [User].self, decoder: JSONDecoder())
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
